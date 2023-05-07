@@ -11,6 +11,7 @@ import pe.com.midocvirtual.backend.entities.Orden;
 import pe.com.midocvirtual.backend.repositories.OrdenRepository;
 import pe.com.midocvirtual.backend.services.OrdenService;
 
+import java.sql.SQLException;
 import java.util.Date;
 import java.util.List;
 
@@ -64,7 +65,12 @@ public class OrderController {
         return new ResponseEntity<>(repo.getGananciasMensuales(idFarmacia,inicio,fin),HttpStatus.OK);
     }
     @GetMapping("/ordenes/productos/mas/vendidos/{idFarmacia}")
-    public ResponseEntity<List<Object>> getProductosMasVendidos(@PathVariable Long idFarmacia){
-        return new ResponseEntity<>(repo.getProductosMasVendidos(idFarmacia),HttpStatus.OK);
+    public ResponseEntity<List<Object>> getProductosMasVendidos(@PathVariable Long idFarmacia) throws Exception{
+        try {
+            return new ResponseEntity<>(repo.getProductosMasVendidos(idFarmacia),HttpStatus.OK);
+        }catch (Exception e){
+
+        }
+        return null;
     }
 }

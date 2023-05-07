@@ -20,10 +20,10 @@ public interface OrdenRepository extends JpaRepository<Orden, Long> {
             "where o.farmacia.id=?1 and o.fecha>=?2 and o.fecha<=?3 group by month(o.fecha) order by o.fecha asc")
     List<Object> getGananciasMensuales(Long idFarmacia,Date inicio,Date fin);
     @Query(value = "SELECT d.producto_id, p.nombre, p.presentacion, SUM(d.cantidad) AS cantidad\n" +
-            "FROM DetalleVenta d\n" +
-            "JOIN d.orden o\n" +
-            "JOIN d.producto p\n" +
-            "WHERE o.farmacia.id = :idFarmacia\n" +
+            "FROM detalle_venta d\n" +
+            "JOIN ordenes o on d.orden_id=o.id\n" +
+            "JOIN productos p on p.id=d.producto_id\n" +
+            "WHERE o.farmacia_id = :idFarmacia\n" +
             "GROUP BY d.producto_id, p.nombre, p.presentacion\n" +
             "ORDER BY cantidad DESC\n" +
             "LIMIT 5",nativeQuery = true)
