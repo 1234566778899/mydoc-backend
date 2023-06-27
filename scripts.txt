@@ -1,0 +1,53 @@
+insert into proveedores values (1,'poho@gmail.com','Poho','Peru');
+
+insert into productos values (1,'Agentes Antidiarréicos',0,'Bismuntol','262 mg','PAOH','Generico',1);
+insert into productos values (2,'Antifúngicos',1,'Fluconazol','150 mg','PAOH','Generico',1);
+insert into productos values (3,'Antimicrobianos',0,'metronidazol','200 mg','PAOH','Marca',1);
+insert into productos values (4,'Antifúngicos',0,'Clotrimazol','500 mg','PAOH','Generico',1);
+insert into productos values (5,'Antifúngicos',0,'Nistatina','250 mg','PAOH','Generico',1);
+insert into productos values (6,'Profilaxis',0,'Doxiciclina','100 mg','PAOH','Generico',1);
+insert into productos values (7,'Antibióticos',0,'Amoxicilina','250 mg','PAOH','Generico',1);
+insert into productos values (8,'Antibióticos',0,'Bactrim','150 mg','PAOH','Marca',1);
+insert into productos values (9,'Antidepresivo',1,'Fluoxetine','150 mg','PAOH','Generico',1);
+insert into productos values (10,'Antibioticos',0,'Herbimicina','180 mg','PAOH','Generico',1);
+insert into productos values (11,'Antiviral activo',1,'Cesumar','200 mg','PAOH','Marca',1);
+insert into productos values (12,'Antiviral activo',1,'aclivior','100 mg','PAOH','Generico',1);
+insert into productos values (13,'Antibióticos',0,'ampicilina','150 mg','PAOH','Generico',1);
+insert into productos values (14,'Antibióticos',0,'Azitromicina','500 mg','PAOH','Marca',1);
+insert into productos values (15,'Antibióticos',0,'claritromicina','500 mg','PAOH','Generico',1);
+insert into productos values (16,'Analgésico',0,'Diclofenaco','100 mg','PAOH','Marca',1);
+insert into productos values (17,'Analgésico',0,'Dexametasona','0.5 mg','PAOH','Generico',1);
+insert into productos values (18,'Antibioticos',1,'Gentamicina','150 mg','PAOH','Generico',1);
+insert into productos values (19,'Analgésico',1,'Medicaort','4 mg','PAOH','Marca',1);
+insert into productos values (20,'Antibioticos',0,'Penicillina','500 mg','PAOH','Generico',1);
+insert into productos values (21,'Antibioticos',0,'Cefaclor','250 mg','PAOH','Generico',1);
+insert into productos values (22,'Antibioticos',0,'Cefradrina','500 mg','PAOH','Generico',1);
+insert into productos values (23,'Antibioticos',1,'Minociclina','100 mg','PAOH','Marca',1);
+insert into productos values (24,'Antihistaminico',1,'Triprolidina','500 mg','PAOH','Generico',1);
+insert into productos values (25,'Antihistaminico',1,'Bromfeniramina','150 mg','PAOH','Generico',1);
+insert into productos values (26,'Antibioticos',1,'Palzomicina','500 mg','PAOH','Marca',1);
+insert into productos values (27,'Antihistaminico',0,'Clorfenamina','100 mg','PAOH','Generico',1);
+insert into productos values (28,'Antigripales',0,'Fenilefrina','200 mg','PAOH','Generico',1);
+insert into productos values (29,'Antigripales',0,'Ambroxol','100 mg','PAOH','Marca',1);
+insert into productos values (30,'Antigripales',0,'Hidrocortisona','500 mg','PAOH','Generico',1);
+
+
+delimiter  //
+CREATE TRIGGER update_stock
+AFTER INSERT ON detalle_venta
+FOR EACH ROW BEGIN
+	SET @stock_id = (NEW.stock_id);
+	SET @Orden_id = (NEW.orden_id);
+	SET @Farmacia = (SELECT farmacia_id FROM ordenes WHERE id = @Orden_id);
+	SET @Unidades = (NEW.cantidad);
+	UPDATE stocks
+	SET cantidad_disponible = cantidad_disponible-@Unidades
+	WHERE farmacia_id = @Farmacia AND id = @stock_id;
+    SET @cantidad=(select cantidad_disponible from stocks where id=@stock_id);
+    SET @nombre=(select nombre from productos where id=NEW.producto_id);
+    SET @presentacion=(select presentacion from productos where id=NEW.producto_id);
+    if @cantidad<=10 then
+    insert into notificaciones 
+    values (0,@farmacia,now(),CONCAT(@nombre,' ',@presentacion, ' se esta terminado, quedan ',@cantidad,' unidades'),@stock_id,0);
+    end if;
+END //
